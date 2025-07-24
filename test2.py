@@ -2,8 +2,10 @@ import streamlit as st
 import random
 import time
 
-st.title("가위바위보 게임 / Rock-Paper-Scissors Game / 剪刀石头布游戏 / じゃんけんゲーム")
+# 제목은 한국어랑 영어만
+st.title("가위바위보 게임 / Rock-Paper-Scissors Game")
 
+# 언어 선택지는 4개
 lang = st.selectbox("언어 선택 / Choose Language / 语言选择 / 言語選択", ["한국어", "English", "中文", "日本語"])
 
 texts = {
@@ -129,6 +131,9 @@ if "turn" not in st.session_state:
 if "multi_choices" not in st.session_state:
     st.session_state.multi_choices = {}
 
+if "first_play" not in st.session_state:
+    st.session_state.first_play = True  # 컴퓨터 생각중 메시지 한 번만 보여주기
+
 def judge(user, computer):
     wins = {
         "가위": "보",
@@ -155,8 +160,10 @@ if mode == t["single"]:
     user_choice = st.radio(t["choose"], t["options"])
 
     if st.button(t["button"]):
-        st.write(t["thinking"])
-        time.sleep(1)
+        if st.session_state.first_play:
+            st.write(t["thinking"])
+            time.sleep(1)
+            st.session_state.first_play = False
 
         computer_choice = random.choice(t["options"])
         st.write(f"### {t['your_choice']} {user_choice}")
@@ -224,5 +231,5 @@ if st.button(t["reset"]):
     st.session_state.multi_score = {"player1": 0, "player2": 0, "draw": 0}
     st.session_state.turn = 1
     st.session_state.multi_choices = {}
-
+    st.session_state.first_play = True
     st.success("점수가 초기화되었어요!")

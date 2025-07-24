@@ -1,6 +1,5 @@
 import streamlit as st
 
-# 미로맵: #은 벽, ' '은 길, E는 도착점, P는 플레이어 위치
 maze = [
     ['#', '#', '#', '#', '#', '#', '#'],
     ['#', ' ', ' ', ' ', '#', 'E', '#'],
@@ -20,23 +19,23 @@ def find_player(maze):
 def move_player(maze, direction):
     x, y = find_player(maze)
     dx, dy = 0, 0
-    if direction == 'w':  # 상
+    if direction == 'w':  # 위로 이동
         dx = -1
-    elif direction == 's':  # 하
+    elif direction == 's':  # 아래로 이동
         dx = 1
-    elif direction == 'a':  # 좌
+    elif direction == 'a':  # 왼쪽으로 이동
         dy = -1
-    elif direction == 'd':  # 우
+    elif direction == 'd':  # 오른쪽으로 이동
         dy = 1
     else:
         return maze, False  # 방향키가 아니면 움직이지 않음
 
     nx, ny = x + dx, y + dy
     if maze[nx][ny] != '#':  # 벽이 아니면 이동 가능
-        if maze[nx][ny] == 'E':  # 도착점 도달
+        if maze[nx][ny] == 'E':  # 도착점에 도달하면
             st.success("🎉 도착했다! 축하해! 🎉")
             return maze, True
-        maze[x][y] = ' '       # 이전 위치는 빈칸으로
+        maze[x][y] = ' '       # 이전 위치를 빈칸으로 바꿈
         maze[nx][ny] = 'P'     # 새 위치에 플레이어 표시
     return maze, False
 
@@ -48,12 +47,13 @@ st.title("간단한 미로 게임 (WASD로 이동)")
 
 st.markdown("""
 ### 게임 설명  
-- **P**: 플레이어 위치  
+- **P**: 출발 위치 (플레이어 위치)  
+- **E**: 출구 (도착 지점)  
 - **#**: 벽 (지나갈 수 없음)  
-- **E**: 도착 지점  
-- 키보드로 **W(상), A(좌), S(하), D(우)** 입력 후 엔터를 눌러 이동  
+- 빈 칸: 이동 가능한 길  
+- 키보드로 **W(위), A(왼쪽), S(아래), D(오른쪽)** 중 하나를 입력하고 엔터를 눌러 이동하세요  
 - 도착 지점에 가면 게임 클리어!  
-- 입력칸에 방향키 대신 다른 글자나 아무것도 입력하지 말고 정확히 W, A, S, D 만 입력해 주세요.  
+- 입력창에는 정확히 W, A, S, D만 입력해 주세요 (대소문자 상관없음)  
 """)
 
 if st.session_state.finished:

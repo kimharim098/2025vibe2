@@ -7,6 +7,11 @@ if 'target' not in st.session_state:
 
 st.title("숫자 맞추기 게임")
 
+if st.button("다시하기"):
+    st.session_state.target = random.randint(1, 100)
+    st.session_state.guess_count = 0
+    st.experimental_rerun()
+
 with st.form(key='guess_form'):
     guess = st.number_input("1부터 100 사이 숫자를 입력하세요", min_value=1, max_value=100, step=1)
     submit = st.form_submit_button("제출")
@@ -19,7 +24,3 @@ if submit:
         st.write("더 낮은 숫자야!")
     else:
         st.write(f"축하해! {st.session_state.guess_count}번 만에 맞췄어! 🎉")
-        if st.button("다시하기"):
-            st.session_state.target = random.randint(1, 100)
-            st.session_state.guess_count = 0
-            st.experimental_rerun()

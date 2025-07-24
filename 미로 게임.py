@@ -1,5 +1,6 @@
 import streamlit as st
 
+# 미로맵: #은 벽, ' '은 길, E는 출구, P는 플레이어 위치
 maze = [
     ['#', '#', '#', '#', '#', '#', '#'],
     ['#', ' ', ' ', ' ', '#', 'E', '#'],
@@ -43,19 +44,18 @@ if 'maze' not in st.session_state:
     st.session_state.maze = maze
     st.session_state.finished = False
 
-st.title("미로 게임 (버튼 옆에 배치)")
+st.title("미로 게임 (버튼 옆 배치)")
 
 st.markdown("""
 ### 게임 설명  
-- **P**: 플레이어 위치 (출발점)  
+- **P**: 출발 위치 (플레이어)  
 - **E**: 출구 (도착점)  
 - **#**: 벽 (지나갈 수 없음)  
 - 빈 칸: 이동 가능한 길  
-- 오른쪽 버튼을 눌러 이동하세요  
+- 오른쪽 버튼으로 방향을 선택해 이동하세요!  
 - 출구에 도착하면 게임 클리어!  
 """)
 
-# 좌우 2개 컬럼 생성
 col_maze, col_buttons = st.columns([3,1])
 
 with col_maze:

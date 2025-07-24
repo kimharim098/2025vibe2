@@ -2,75 +2,16 @@ import streamlit as st
 import random
 import time
 
-# 다국어 텍스트 모음
-TEXTS = {
-    "ko": {
-        "title": "🧠 기억력 숫자 합 맞추기 게임",
-        "intro": "최대 4명이 함께하는 기억력 게임입니다.\n20단계까지 숫자의 합을 맞추고 4단계마다 난이도가 올라갑니다.",
-        "start": "게임 시작",
-        "players": "플레이어 수 (1~4명)",
-        "input_name": "플레이어 이름 입력",
-        "ready": "준비 완료",
-        "waiting": "대기 중인 플레이어",
-        "all_ready": "모두 준비 완료! 게임 시작합니다.",
-        "remember": "숫자를 기억하세요!",
-        "time_left": "숫자가 사라지기까지 남은 시간:",
-        "input_sum": "숫자의 합을 입력하세요",
-        "submit": "제출",
-        "correct": "정답입니다!",
-        "wrong": "틀렸어요! 정답은",
-        "next": "다음 단계",
-        "ranking": "최종 랭킹",
-        "restart": "다시 시작",
-        "language": "언어 선택",
-        "already_submitted": "이미 제출했습니다. 기다려 주세요."
-    },
-    "en": {
-        "title": "🧠 Memory Number Sum Game",
-        "intro": "Up to 4 players memory game.\nGuess sum of numbers in 20 levels with increasing difficulty every 4 levels.",
-        "start": "Start Game",
-        "players": "Number of Players (1-4)",
-        "input_name": "Enter Player Name",
-        "ready": "Ready",
-        "waiting": "Waiting Players",
-        "all_ready": "All ready! Starting game.",
-        "remember": "Remember these numbers!",
-        "time_left": "Time left before numbers disappear:",
-        "input_sum": "Enter the sum of numbers",
-        "submit": "Submit",
-        "correct": "Correct!",
-        "wrong": "Wrong! The correct answer was",
-        "next": "Next Level",
-        "ranking": "Final Ranking",
-        "restart": "Restart",
-        "language": "Choose Language",
-        "already_submitted": "You already submitted. Please wait."
-    }
-}
-
 TOTAL_LEVELS = 20
+SHOW_TIME = 5
 MAX_PLAYERS = 4
-MIN_PLAYERS = 1
-SHOW_TIME = 5  # 숫자 보여주는 시간 (초)
 
 def get_level_setting(level):
-    if level <= 4:
-        return 3, 9
-    elif level <= 8:
-        return 4, 20
-    elif level <= 12:
-        return 5, 30
-    elif level <= 16:
-        return 6, 50
-    else:
-        return 7, 99
-
-if "lang" not in st.session_state:
-    lang_choice = st.sidebar.radio("🌐 Language / 언어 선택", ["한국어", "English"])
-    st.session_state.lang = "ko" if lang_choice == "한국어" else "en"
-    st.stop()
-
-L = TEXTS[st.session_state.lang]
+    if level <= 4: return 3, 9
+    if level <= 8: return 4, 20
+    if level <= 12: return 5, 30
+    if level <= 16: return 6, 50
+    return 7, 99
 
 if "step" not in st.session_state:
     st.session_state.step = "intro"
@@ -89,42 +30,39 @@ if "scores" not in st.session_state:
 if "show_start_time" not in st.session_state:
     st.session_state.show_start_time = None
 
-st.title(L["title"])
+st.title("기억력 숫자 합 맞추기 게임")
 
-# 1. 소개 및 플레이어 입력
+# 1. 플레이어 입력
 if st.session_state.step == "intro":
-    st.write(L["intro"])
-    players_num = st.slider(L["players"], MIN_PLAYERS, MAX_PLAYERS, 1)
-
+    players_num = st.slider("플레이어 수 선택 (1~4명)", 1, MAX_PLAYERS, 1)
     names = []
     for i in range(players_num):
-        name = st.text_input(f"{L['input_name']} {i+1}", key=f"name_{i}")
+        name = st.text_input(f"플레이어 {i+1} 이름", key=f"name_{i}")
         if name:
             names.append(name)
 
-    if len(names) == players_num:
-        if st.button(L["start"]):
-            st.session_state.players = names
-            st.session_state.scores = {p:0 for p in names}
-            st.session_state.ready = set()
-            st.session_state.level = 1
-            st.session_state.step = "lobby"
-            st.experimental_rerun()
+    if len(names) == players_num and st.button("게임 시작"):
+        st.session_state.players = names
+        st.session_state.scores = {n:0 for n in names}
+        st.session_state.ready = set()
+        st.session_state.level = 1
+        st.session_state.step = "lobby"
+        st.experimental_rerun()
 
-# 2. 대기실, 준비하기
+# 2. 대기실
 elif st.session_state.step == "lobby":
-    st.header(L["waiting"])
+    st.write("대기 중인 플레이어:")
     for p in st.session_state.players:
         st.write(f"- {p} {'✅' if p in st.session_state.ready else '❌'}")
 
-    name = st.text_input(L["input_name"], key="lobby_name")
-    if name and name in st.session_state.players and name not in st.session_state.ready:
-        if st.button(L["ready"]):
+    name = st.text_input("준비 완료할 이름 입력", key="lobby_name")
+    if name in st.session_state.players and name not in st.session_state.ready:
+        if st.button("준비 완료"):
             st.session_state.ready.add(name)
             st.experimental_rerun()
 
     if len(st.session_state.ready) == len(st.session_state.players):
-        st.success(L["all_ready"])
+        st.success("모두 준비 완료! 게임 시작")
         st.session_state.step = "show"
         st.session_state.show_start_time = time.time()
         st.session_state.numbers = []
@@ -132,7 +70,6 @@ elif st.session_state.step == "lobby":
 
 # 3. 숫자 보여주기
 elif st.session_state.step == "show":
-    st.header(L["remember"])
     count, max_num = get_level_setting(st.session_state.level)
     if not st.session_state.numbers:
         st.session_state.numbers = [random.randint(1, max_num) for _ in range(count)]
@@ -145,21 +82,20 @@ elif st.session_state.step == "show":
         st.session_state.show_start_time = None
         st.experimental_rerun()
     else:
-        st.info(f"{L['time_left']} {SHOW_TIME - int(elapsed)}초")
+        st.info(f"숫자 사라질 때까지 {SHOW_TIME - int(elapsed)}초 남음")
         st.experimental_rerun()
 
 # 4. 정답 입력
 elif st.session_state.step == "guess":
-    st.header(L["input_sum"])
     correct_sum = sum(st.session_state.numbers)
+    name = st.text_input("이름 입력", key="guess_name")
 
-    name = st.text_input(L["input_name"], key="guess_name")
-    if name and name in st.session_state.players:
+    if name in st.session_state.players:
         if name in st.session_state.answers:
-            st.success(L["already_submitted"])
+            st.success("이미 제출했습니다. 기다려 주세요.")
         else:
-            answer = st.number_input("", step=1, format="%d", key=f"answer_{name}")
-            if st.button(L["submit"], key=f"submit_{name}"):
+            answer = st.number_input("합 입력", step=1, format="%d", key=f"answer_{name}")
+            if st.button("제출", key=f"submit_{name}"):
                 st.session_state.answers[name] = answer
                 if answer == correct_sum:
                     st.session_state.scores[name] += 1
@@ -167,21 +103,20 @@ elif st.session_state.step == "guess":
                     st.session_state.step = "result"
                 st.experimental_rerun()
 
-# 5. 결과 및 다음 단계 or 랭킹
+# 5. 결과
 elif st.session_state.step == "result":
-    st.header(L["result"])
     correct_sum = sum(st.session_state.numbers)
-    st.write(f"{L['wrong']} {correct_sum}")
+    st.write(f"정답은 {correct_sum} 입니다.")
 
     for p in st.session_state.players:
         ans = st.session_state.answers.get(p)
         if ans == correct_sum:
-            st.success(f"{p}: {L['correct']}")
+            st.success(f"{p}: 정답!")
         else:
-            st.error(f"{p}: {L['wrong']} {correct_sum}")
+            st.error(f"{p}: 틀렸어요. 정답은 {correct_sum}")
 
     if st.session_state.level < TOTAL_LEVELS:
-        if st.button(L["next"]):
+        if st.button("다음 단계"):
             st.session_state.level += 1
             st.session_state.numbers = []
             st.session_state.answers = {}
@@ -189,18 +124,19 @@ elif st.session_state.step == "result":
             st.session_state.show_start_time = time.time()
             st.experimental_rerun()
     else:
-        if st.button(L["ranking"]):
+        if st.button("최종 랭킹 보기"):
             st.session_state.step = "ranking"
             st.experimental_rerun()
 
-# 6. 최종 랭킹
+# 6. 랭킹
 elif st.session_state.step == "ranking":
-    st.header(L["ranking"])
     ranking = sorted(st.session_state.scores.items(), key=lambda x: x[1], reverse=True)
+    st.write("최종 랭킹:")
     for i, (name, score) in enumerate(ranking, 1):
         st.write(f"{i}위: {name} - {score}점")
-    if st.button(L["restart"]):
-        for key in ["step", "players", "ready", "level", "numbers", "answers", "scores", "show_start_time"]:
+
+    if st.button("다시 시작"):
+        for key in ["step","players","ready","level","numbers","answers","scores","show_start_time"]:
             if key in st.session_state:
                 del st.session_state[key]
         st.experimental_rerun()

@@ -2,10 +2,8 @@ import streamlit as st
 import random
 import time
 
-# 제목은 한국어랑 영어만
 st.title("가위바위보 게임 / Rock-Paper-Scissors Game")
 
-# 언어 선택지는 4개
 lang = st.selectbox("언어 선택 / Choose Language / 语言选择 / 言語選択", ["한국어", "English", "中文", "日本語"])
 
 texts = {
@@ -15,9 +13,9 @@ texts = {
         "thinking": "컴퓨터가 생각 중...",
         "your_choice": "당신의 선택:",
         "computer_choice": "컴퓨터의 선택:",
-        "tie": "비겼어요!",
+        "tie": "비겼어요! 🤝",
         "win": "이겼어요! 🎉",
-        "lose": "졌어요",
+        "lose": "졌어요 😢",
         "score": "점수",
         "win_count": "이긴 횟수:",
         "lose_count": "진 횟수:",
@@ -26,6 +24,7 @@ texts = {
         "mode": "게임 모드 선택:",
         "single": "1인 플레이 (컴퓨터와 대결)",
         "multi": "2인 플레이 (친구와 번갈아)",
+        "play_again": "다시 하기",
         "player1": "플레이어 1 이름:",
         "player2": "플레이어 2 이름:",
         "turn": "차례:",
@@ -41,9 +40,9 @@ texts = {
         "thinking": "Computer is thinking...",
         "your_choice": "Your choice:",
         "computer_choice": "Computer's choice:",
-        "tie": "It's a tie!",
+        "tie": "It's a tie! 🤝",
         "win": "You win! 🎉",
-        "lose": "You lose",
+        "lose": "You lose 😢",
         "score": "Score",
         "win_count": "Wins:",
         "lose_count": "Losses:",
@@ -52,6 +51,7 @@ texts = {
         "mode": "Select Game Mode:",
         "single": "Single Player (vs Computer)",
         "multi": "Multiplayer (Take turns)",
+        "play_again": "Play Again",
         "player1": "Player 1 Name:",
         "player2": "Player 2 Name:",
         "turn": "Turn:",
@@ -67,9 +67,9 @@ texts = {
         "thinking": "电脑思考中...",
         "your_choice": "你的选择:",
         "computer_choice": "电脑的选择:",
-        "tie": "平局!",
+        "tie": "平局! 🤝",
         "win": "你赢了! 🎉",
-        "lose": "你输了",
+        "lose": "你输了 😢",
         "score": "分数",
         "win_count": "赢了:",
         "lose_count": "输了:",
@@ -78,6 +78,7 @@ texts = {
         "mode": "选择游戏模式:",
         "single": "单人模式（对战电脑）",
         "multi": "多人模式（轮流出拳）",
+        "play_again": "再来一次",
         "player1": "玩家1名字:",
         "player2": "玩家2名字:",
         "turn": "轮到:",
@@ -93,9 +94,9 @@ texts = {
         "thinking": "コンピューターが考えています...",
         "your_choice": "あなたの選択:",
         "computer_choice": "コンピューターの選択:",
-        "tie": "あいこです！",
+        "tie": "あいこです！🤝",
         "win": "あなたの勝ち！🎉",
-        "lose": "あなたの負けです",
+        "lose": "あなたの負けです 😢",
         "score": "スコア",
         "win_count": "勝ち数:",
         "lose_count": "負け数:",
@@ -104,6 +105,7 @@ texts = {
         "mode": "ゲームモードを選択:",
         "single": "1人プレイ（コンピューターと対戦）",
         "multi": "2人プレイ（交互に出す）",
+        "play_again": "もう一度プレイ",
         "player1": "プレイヤー1の名前:",
         "player2": "プレイヤー2の名前:",
         "turn": "ターン:",
@@ -132,7 +134,10 @@ if "multi_choices" not in st.session_state:
     st.session_state.multi_choices = {}
 
 if "first_play" not in st.session_state:
-    st.session_state.first_play = True  # 컴퓨터 생각중 메시지 한 번만 보여주기
+    st.session_state.first_play = True
+
+if "game_over" not in st.session_state:
+    st.session_state.game_over = False
 
 def judge(user, computer):
     wins = {
@@ -157,28 +162,34 @@ def judge(user, computer):
         return "lose"
 
 if mode == t["single"]:
-    user_choice = st.radio(t["choose"], t["options"])
+    if not st.session_state.game_over:
+        user_choice = st.radio(t["choose"], t["options"])
+        if st.button(t["button"]):
+            if st.session_state.first_play:
+                st.write(t["thinking"])
+                time.sleep(1)
+                st.session_state.first_play = False
 
-    if st.button(t["button"]):
-        if st.session_state.first_play:
-            st.write(t["thinking"])
-            time.sleep(1)
-            st.session_state.first_play = False
+            computer_choice = random.choice(t["options"])
+            st.write(f"### {t['your_choice']} {user_choice}")
+            st.write(f"### {t['computer_choice']} {computer_choice}")
 
-        computer_choice = random.choice(t["options"])
-        st.write(f"### {t['your_choice']} {user_choice}")
-        st.write(f"### {t['computer_choice']} {computer_choice}")
+            result = judge(user_choice, computer_choice)
+            if result == "win":
+                st.session_state.score["win"] += 1
+                st.write(f"### {t['win']}")
+            elif result == "lose":
+                st.session_state.score["lose"] += 1
+                st.write(f"### {t['lose']}")
+            else:
+                st.session_state.score["tie"] += 1
+                st.write(f"### {t['tie']}")
 
-        result = judge(user_choice, computer_choice)
-        if result == "win":
-            st.session_state.score["win"] += 1
-            st.write(f"### {t['win']}")
-        elif result == "lose":
-            st.session_state.score["lose"] += 1
-            st.write(f"### {t['lose']}")
-        else:
-            st.session_state.score["tie"] += 1
-            st.write(f"### {t['tie']}")
+            st.session_state.game_over = True
+    else:
+        if st.button(t["play_again"]):
+            st.session_state.game_over = False
+            st.experimental_rerun()
 
     st.write(f"## {t['score']}")
     st.write(f"{t['win_count']} {st.session_state.score['win']}")
@@ -189,37 +200,42 @@ elif mode == t["multi"]:
     player1 = st.text_input(t["player1"], value="Player1" if lang != "한국어" else "플레이어1")
     player2 = st.text_input(t["player2"], value="Player2" if lang != "한국어" else "플레이어2")
 
-    st.write(f"## {t['turn']} {player1 if st.session_state.turn == 1 else player2}")
+    if not st.session_state.game_over:
+        st.write(f"## {t['turn']} {player1 if st.session_state.turn == 1 else player2}")
+        move = st.radio(t["select_move"], t["options"], key="move")
 
-    move = st.radio(t["select_move"], t["options"], key="move")
+        if st.button(t["make_move"]):
+            current_player = "player1" if st.session_state.turn == 1 else "player2"
+            st.session_state.multi_choices[current_player] = move
+            st.write(f"{player1 if st.session_state.turn == 1 else player2} 선택: {move}")
 
-    if st.button(t["make_move"]):
-        current_player = "player1" if st.session_state.turn == 1 else "player2"
-        st.session_state.multi_choices[current_player] = move
-        st.write(f"{player1 if st.session_state.turn == 1 else player2} 선택: {move}")
+            if len(st.session_state.multi_choices) == 2:
+                p1_choice = st.session_state.multi_choices["player1"]
+                p2_choice = st.session_state.multi_choices["player2"]
 
-        if len(st.session_state.multi_choices) == 2:
-            p1_choice = st.session_state.multi_choices["player1"]
-            p2_choice = st.session_state.multi_choices["player2"]
+                st.write(f"{player1} 선택: {p1_choice}")
+                st.write(f"{player2} 선택: {p2_choice}")
 
-            st.write(f"{player1} 선택: {p1_choice}")
-            st.write(f"{player2} 선택: {p2_choice}")
+                result = judge(p1_choice, p2_choice)
+                if result == "tie":
+                    st.session_state.multi_score["draw"] += 1
+                    st.write(f"### {t['tie']}")
+                elif result == "win":
+                    st.session_state.multi_score["player1"] += 1
+                    st.write(f"### {player1} {t['win']}")
+                else:
+                    st.session_state.multi_score["player2"] += 1
+                    st.write(f"### {player2} {t['win']}")
 
-            result = judge(p1_choice, p2_choice)
-            if result == "tie":
-                st.session_state.multi_score["draw"] += 1
-                st.write(f"### {t['tie']}")
-            elif result == "win":
-                st.session_state.multi_score["player1"] += 1
-                st.write(f"### {player1} {t['win']}")
+                st.session_state.game_over = True
             else:
-                st.session_state.multi_score["player2"] += 1
-                st.write(f"### {player2} {t['win']}")
-
+                st.session_state.turn = 2 if st.session_state.turn == 1 else 1
+    else:
+        if st.button(t["play_again"]):
+            st.session_state.game_over = False
             st.session_state.turn = 1
             st.session_state.multi_choices = {}
-        else:
-            st.session_state.turn = 2 if st.session_state.turn == 1 else 1
+            st.experimental_rerun()
 
     st.write(f"## {t['player_score']}")
     st.write(f"{player1}: {st.session_state.multi_score['player1']}")
@@ -232,4 +248,5 @@ if st.button(t["reset"]):
     st.session_state.turn = 1
     st.session_state.multi_choices = {}
     st.session_state.first_play = True
+    st.session_state.game_over = False
     st.success("점수가 초기화되었어요!")

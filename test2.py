@@ -15,7 +15,7 @@ texts = {
         "computer_choice": "컴퓨터의 선택:",
         "tie": "비겼어요!",
         "win": "이겼어요! 🎉",
-        "lose": "졌어요 ㅠㅠ",
+        "lose": "졌어요",
         "score": "점수",
         "win_count": "이긴 횟수:",
         "lose_count": "진 횟수:",
@@ -41,7 +41,7 @@ texts = {
         "computer_choice": "Computer's choice:",
         "tie": "It's a tie!",
         "win": "You win! 🎉",
-        "lose": "You lose ㅠㅠ",
+        "lose": "You lose",
         "score": "Score",
         "win_count": "Wins:",
         "lose_count": "Losses:",
@@ -67,7 +67,7 @@ texts = {
         "computer_choice": "电脑的选择:",
         "tie": "平局!",
         "win": "你赢了! 🎉",
-        "lose": "你输了 ㅠㅠ",
+        "lose": "你输了",
         "score": "分数",
         "win_count": "赢了:",
         "lose_count": "输了:",
@@ -93,7 +93,7 @@ texts = {
         "computer_choice": "コンピューターの選択:",
         "tie": "あいこです！",
         "win": "あなたの勝ち！🎉",
-        "lose": "あなたの負けです ㅠㅠ",
+        "lose": "あなたの負けです",
         "score": "スコア",
         "win_count": "勝ち数:",
         "lose_count": "負け数:",
@@ -109,7 +109,7 @@ texts = {
         "make_move": "決定",
         "player_score": "プレイヤースコア",
         "draw": "あいこ",
-        "options": ["グー", "チョキ", "パー"]  # 일본어 가위바위보
+        "options": ["グー", "チョキ", "パー"]
     }
 }
 
@@ -130,8 +130,6 @@ if "multi_choices" not in st.session_state:
     st.session_state.multi_choices = {}
 
 def judge(user, computer):
-    # 승리 조건 (한국어, 영어, 중국어 기준은 같은 규칙)
-    # 일본어는 'グー' 바위, 'チョキ' 가위, 'パー' 보
     wins = {
         "가위": "보",
         "바위": "가위",
@@ -142,9 +140,9 @@ def judge(user, computer):
         "剪刀": "布",
         "石头": "剪刀",
         "布": "石头",
-        "チョキ": "パー",  # 가위 이김 보
-        "グー": "チョキ",  # 바위 이김 가위
-        "パー": "グー"    # 보 이김 바위
+        "チョキ": "パー",
+        "グー": "チョキ",
+        "パー": "グー"
     }
     if user == computer:
         return "tie"
@@ -226,4 +224,5 @@ if st.button(t["reset"]):
     st.session_state.multi_score = {"player1": 0, "player2": 0, "draw": 0}
     st.session_state.turn = 1
     st.session_state.multi_choices = {}
-    st.experimental_rerun()
+
+    st.success("점수가 초기화되었어요!")
